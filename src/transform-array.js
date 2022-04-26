@@ -13,9 +13,41 @@ const { NotImplementedError } = require('../extensions/index.js');
  * transform([1, 2, 3, '--discard-prev', 4, 5]) => [1, 2, 4, 5]
  * 
  */
-function transform(/* arr */) {
-  throw new NotImplementedError('Not implemented');
-  // remove line with error and write your code here
+function transform( arr ) {
+  if (!Array.isArray(arr)){
+    throw new Error("'arr' parameter must be an instance of the Array!")
+  }
+  let result = JSON.parse(JSON.stringify(arr));
+
+  for (let i=0; i<=result.length; i++){
+    if (i === 0 && (result[i] === "--discard-prev" || result[i] === "--double-prev")){
+      result.splice(i, 1);
+      //If there is no element next to the control sequence to which it can be applied in
+      // the initial array, or this element was !!!previously deleted, it does nothing.
+    } else if (arr[i] === "--discard-next" && (result[i] === "--double-prev" || result[i] === "--discard-prev")){
+      result.splice(i, 1);
+    } else if (i === arr.length-1 && result[i] === "--double-next"){
+      result.splice(i, 1);
+    } else {
+      switch (result[i]){
+        case("--discard-next"):
+          result.splice(i, 2);
+          i = i-1;
+          break;
+        case("--discard-prev"):
+          result.splice(i-1, 2);
+          i = i-1;
+          break;
+        case("--double-prev"):
+          result.splice(i, 1, result[i-1]);
+          break;
+        case("--double-next"):
+          result.splice(i, 1, result[i+1]);
+          break;
+      }
+    }
+  }
+  return result
 }
 
 module.exports = {
